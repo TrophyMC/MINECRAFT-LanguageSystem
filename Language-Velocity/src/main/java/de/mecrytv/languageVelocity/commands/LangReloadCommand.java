@@ -25,13 +25,13 @@ public class LangReloadCommand implements SimpleCommand {
         String userLangCode = profile.getLanguageCode();
 
         if (!player.hasPermission("language.velocity.reload")) {
-            GeneralUtils.sendTranslatedByUserLang(invocation, userLangCode, "command.langreload.nopermission");
+            GeneralUtils.sendTranslatedByUserLang(invocation, userLangCode, "commands.langreload.nopermission");
             return;
         }
 
         plugin.getLanguageAPI().reloadAll();
         plugin.getServiceManager().sendGlobalReloadSignal();
 
-        GeneralUtils.sendTranslatedByUserLang(invocation, userLangCode, "command.langreload.success");
+        GeneralUtils.sendTranslatedByUserLang(invocation, userLangCode, "commands.langreload.success");
     }
 }
