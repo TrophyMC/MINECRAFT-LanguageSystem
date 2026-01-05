@@ -14,7 +14,7 @@ public class LanguageAPI {
 
     private final Map<String, Map<String, LanguageConfigManager>> configs = new HashMap<>();
     private final Map<UUID, ILanguageProfile> profileCache = new HashMap<>();
-    private final List<String> categories = Arrays.asList("commands", "listeners", "messages");
+    private final List<String> categories = Arrays.asList("commands", "listeners", "messages", "gui");
     private final Path dataFolder;
 
     public LanguageAPI(Path dataFolder) {
