@@ -24,7 +24,7 @@ public class GeneralUtils {
             ILanguageProfile profile = api.getProfile(player.getUniqueId(), "en_US");
             langCode = profile.getLanguageCode();
         }
-        sendTranslated(invocation, langCode, configKey, replacements);
+        sendTranslatedByUserLang(invocation, langCode, configKey, replacements);
     }
 
     public static void sendTranslatedByUserLang(SimpleCommand.Invocation invocation, String langCode, String configKey, String... replacements) {
@@ -41,6 +41,7 @@ public class GeneralUtils {
                 message = fallbackMessage;
             }
         }
+
         if (replacements != null && replacements.length > 1) {
             for (int i = 0; i < replacements.length; i += 2) {
                 if (i + 1 < replacements.length) {
@@ -53,7 +54,6 @@ public class GeneralUtils {
             }
         }
 
-        // 4. Senden
         source.sendMessage(
                 sm.getPrefix().append(miniMessage.deserialize(message))
         );
