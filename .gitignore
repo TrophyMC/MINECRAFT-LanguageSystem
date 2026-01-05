@@ -1,2 +1,9 @@
 .idea
 LanguageSystem.iml
+LanguageAPI.iml
+
+LanguageAPI/.gradle
+LanguageAPI/build
+LanguageAPI/out
+LanguageAPI/.idea
+LanguageAPI/gradle
