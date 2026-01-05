@@ -9,3 +9,10 @@ LanguageAPI/out
 LanguageAPI/.idea
 LanguageAPI/gradle
 
+# Language-Velocity
+Language-Velocity.iml
+Language-Velocity/.gradle
+Language-Velocity/build
+Language-Velocity/out
+Language-Velocity/.idea
+Language-Velocity/gradle
