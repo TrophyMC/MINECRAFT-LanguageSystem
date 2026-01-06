@@ -2,8 +2,8 @@ package de.mecrytv.languageBackend.cache;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import de.mecrytv.languageVelocity.LanguageVelocity;
-import de.mecrytv.languageVelocity.models.ICacheModel;
+import de.mecrytv.languageBackend.LanguageBackend;
+import de.mecrytv.languageBackend.models.ICacheModel;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,18 +27,18 @@ public abstract class CacheNode<T extends ICacheModel> {
 
     public void set(T model) {
         String key = redisPrefix + model.getIdentifier();
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().set(key, model.serialize().toString());
+        LanguageBackend.getInstance().getRedisManager().set(key, model.serialize().toString());
 
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().srem(deletedSetKey, model.getIdentifier());
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().sadd(dirtySetKey, model.getIdentifier());
+        LanguageBackend.getInstance().getRedisManager().srem(deletedSetKey, model.getIdentifier());
+        LanguageBackend.getInstance().getRedisManager().sadd(dirtySetKey, model.getIdentifier());
     }
 
     public T get(String identifier) {
-        if (LanguageVelocity.getInstance().getServiceManager().getRedisManager().sismember(deletedSetKey, identifier)) {
+        if (LanguageBackend.getInstance().getRedisManager().sismember(deletedSetKey, identifier)) {
             return null;
         }
 
-        String json = LanguageVelocity.getInstance().getServiceManager().getRedisManager().get(redisPrefix + identifier);
+        String json = LanguageBackend.getInstance().getRedisManager().get(redisPrefix + identifier);
         if (json != null) {
             T model = factory.get();
             model.deserialize(gson.fromJson(json, JsonObject.class));
@@ -54,26 +54,26 @@ public abstract class CacheNode<T extends ICacheModel> {
     }
 
     public void flush() {
-        java.util.Set<String> toSave = LanguageVelocity.getInstance().getServiceManager().getRedisManager().smembers(dirtySetKey);
+        java.util.Set<String> toSave = LanguageBackend.getInstance().getRedisManager().smembers(dirtySetKey);
         if (!toSave.isEmpty()) {
-            try (Connection conn = LanguageVelocity.getInstance().getServiceManager().getMariaDBManager().getConnection()) {
+            try (Connection conn = LanguageBackend.getInstance().getMariaDBManager().getConnection()) {
                 for (String id : toSave) {
                     T model = get(id);
                     if (model != null) {
                         saveToDatabase(conn, model);
-                        LanguageVelocity.getInstance().getServiceManager().getRedisManager().srem(dirtySetKey, id);
+                        LanguageBackend.getInstance().getRedisManager().srem(dirtySetKey, id);
                     }
                 }
             } catch (SQLException e) { e.printStackTrace(); }
         }
 
-        java.util.Set<String> toDelete = LanguageVelocity.getInstance().getServiceManager().getRedisManager().smembers(deletedSetKey);
+        java.util.Set<String> toDelete = LanguageBackend.getInstance().getRedisManager().smembers(deletedSetKey);
         if (!toDelete.isEmpty()) {
-            LanguageVelocity.getInstance().getLogger().info("🗑️ Lösche " + toDelete.size() + " Einträge (" + nodeName + ")...");
-            try (Connection conn = LanguageVelocity.getInstance().getServiceManager().getMariaDBManager().getConnection()) {
+            System.out.println("🗑️ Lösche " + toDelete.size() + " Einträge (" + nodeName + ")...");
+            try (Connection conn = LanguageBackend.getInstance().getMariaDBManager().getConnection()) {
                 for (String id : toDelete) {
                     removeFromDatabase(conn, id);
-                    LanguageVelocity.getInstance().getServiceManager().getRedisManager().srem(deletedSetKey, id);
+                    LanguageBackend.getInstance().getRedisManager().srem(deletedSetKey, id);
                 }
             } catch (SQLException e) { e.printStackTrace(); }
         }
@@ -82,21 +82,21 @@ public abstract class CacheNode<T extends ICacheModel> {
     public void delete(String identifier) {
         String key = redisPrefix + identifier;
 
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().del(key);
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().srem(dirtySetKey, identifier);
-        LanguageVelocity.getInstance().getServiceManager().getRedisManager().sadd(deletedSetKey, identifier);
+        LanguageBackend.getInstance().getRedisManager().del(key);
+        LanguageBackend.getInstance().getRedisManager().srem(dirtySetKey, identifier);
+        LanguageBackend.getInstance().getRedisManager().sadd(deletedSetKey, identifier);
     }
 
     public java.util.List<T> getAll() {
         java.util.Map<String, T> mergedData = new java.util.HashMap<>();
 
         for (T dbModel : getAllFromDatabase()) {
-            if (!LanguageVelocity.getInstance().getServiceManager().getRedisManager().sismember(deletedSetKey, dbModel.getIdentifier())) {
+            if (!LanguageBackend.getInstance().getRedisManager().sismember(deletedSetKey, dbModel.getIdentifier())) {
                 mergedData.put(dbModel.getIdentifier(), dbModel);
             }
         }
 
-        java.util.Set<String> redisKeys = LanguageVelocity.getInstance().getServiceManager().getRedisManager().keys(redisPrefix + "*");
+        java.util.Set<String> redisKeys = LanguageBackend.getInstance().getRedisManager().keys(redisPrefix + "*");
         for (String key : redisKeys) {
             String identifier = key.replace(redisPrefix, "");
             T redisModel = get(identifier);

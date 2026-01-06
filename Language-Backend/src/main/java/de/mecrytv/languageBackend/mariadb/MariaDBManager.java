@@ -2,7 +2,7 @@ package de.mecrytv.languageBackend.mariadb;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import de.mecrytv.languageVelocity.LanguageVelocity;
+import de.mecrytv.languageBackend.LanguageBackend;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -12,11 +12,11 @@ public class MariaDBManager {
     private HikariDataSource dataSource;
 
     public MariaDBManager() {
-        String host = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("mariadb.host");
-        int port = LanguageVelocity.getInstance().getServiceManager().getConfig().getInt("mariadb.port");
-        String database = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("mariadb.database").trim();
-        String username = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("mariadb.user");
-        String password = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("mariadb.password");
+        String host = LanguageBackend.getInstance().getConfig().getString("mariadb.host");
+        int port = LanguageBackend.getInstance().getConfig().getInt("mariadb.port");
+        String database = LanguageBackend.getInstance().getConfig().getString("mariadb.database").trim();
+        String username = LanguageBackend.getInstance().getConfig().getString("mariadb.user");
+        String password = LanguageBackend.getInstance().getConfig().getString("mariadb.password");
 
         HikariConfig mariaDBConfig = new HikariConfig();
 
@@ -50,7 +50,7 @@ public class MariaDBManager {
                 connection.close();
             }
         } catch (SQLException e) {
-            LanguageVelocity.getInstance().getLogger().warn("Error closing connection: " + e.getMessage());
+            System.out.println("Error closing connection: " + e.getMessage());
         }
     }
 

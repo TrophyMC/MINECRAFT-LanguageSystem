@@ -1,7 +1,7 @@
 package de.mecrytv.languageBackend.models.redis;
 
 import com.google.gson.JsonObject;
-import de.mecrytv.languageVelocity.models.ICacheModel;
+import de.mecrytv.languageBackend.models.ICacheModel;
 
 import java.util.UUID;
 
