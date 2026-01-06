@@ -92,7 +92,7 @@ public class LanguageAPI {
 
     public String getTranslation(String langCode, String fullKey) {
         String[] split = fullKey.split("\\.", 2);
-        if (split.length < 2) return "§cInvalid Key Format: " + fullKey;
+        if (split.length < 2) return "<red>Invalid Key Format: <white>" + fullKey;
 
         String category = split[0];
         String key = split[1];
@@ -100,7 +100,7 @@ public class LanguageAPI {
         Map<String, LanguageConfigManager> categoriesForLang = configs.get(langCode);
 
         if (categoriesForLang == null) {
-            categoriesForLang = configs.get("de_DE");
+            categoriesForLang = configs.get("en_US");
         }
 
         if (categoriesForLang != null) {
@@ -110,7 +110,7 @@ public class LanguageAPI {
             }
         }
 
-        return "§cMissing Lang: " + langCode + " | " + fullKey;
+        return "<red>Missing Lang: <white>" + langCode + " | " + fullKey; //
     }
 
     public void removeProfile(UUID uuid) {

@@ -89,25 +89,46 @@ public class LanguageConfigManager {
     public void load() {
         if (Files.notExists(filePath)) return;
 
+        boolean success = false;
+        Throwable lastSyntaxError = null;
+
         for (Charset charset : charsetsToTry) {
-            try (BufferedReader reader = Files.newBufferedReader(filePath, charset)) {
-                Map<String, Object> loadedData = gson.fromJson(reader, new TypeToken<Map<String, Object>>(){}.getType());
+            try {
+                byte[] bytes = Files.readAllBytes(filePath);
+
+                java.nio.charset.CharsetDecoder decoder = charset.newDecoder()
+                        .onMalformedInput(java.nio.charset.CodingErrorAction.REPLACE)
+                        .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPLACE);
+
+                String content = decoder.decode(java.nio.ByteBuffer.wrap(bytes)).toString();
+
+                Map<String, Object> loadedData = gson.fromJson(content, new TypeToken<Map<String, Object>>(){}.getType());
 
                 if (loadedData != null) {
                     this.configData = loadedData;
-                    return;
+                    success = true;
+                    break;
                 }
             } catch (com.google.gson.JsonSyntaxException e) {
-                System.err.println("=================================================");
-                System.err.println("[LanguageSystem] KRITISCHER SYNTAX-FEHLER!");
-                System.err.println("Datei: " + filePath.getFileName());
-                System.err.println("Fehler: " + e.getMessage());
-                System.err.println("[LanguageSystem] Die alten Übersetzungen bleiben im RAM.");
-                System.err.println("=================================================");
-                return;
+                lastSyntaxError = e;
             } catch (Exception e) {
-                // Andere Fehler (wie IO-Probleme) -> Nächsten Charset probieren
+                continue;
             }
+        }
+
+        if (!success) {
+            System.err.println("=================================================");
+            System.err.println("[LanguageSystem] KRITISCHER SYNTAX-FEHLER!");
+            System.err.println("Datei: " + filePath.getFileName());
+
+            if (lastSyntaxError != null) {
+                System.err.println("Fehler: " + lastSyntaxError.getMessage());
+            } else {
+                System.err.println("Fehler: Die Datei konnte mit keiner Kodierung gelesen werden.");
+            }
+
+            System.err.println("[LanguageSystem] Die alten Übersetzungen bleiben im RAM.");
+            System.err.println("=================================================");
         }
     }
 
@@ -128,7 +149,7 @@ public class LanguageConfigManager {
 
     public String getString(String path) {
         Object val = get(path);
-        return (val != null) ? String.valueOf(val).replace("&", "§") : "§cMissing key: §f" + path;
+        return (val != null) ? String.valueOf(val) : "<red>Missing key: <white>" + path;
     }
 
     public int getInt(String path) {
