@@ -9,10 +9,12 @@ LanguageAPI/out
 LanguageAPI/.idea
 LanguageAPI/gradle
 
-# Language-Velocity
-Language-Velocity.iml
-Language-Velocity/.gradle
-Language-Velocity/build
-Language-Velocity/out
-Language-Velocity/.idea
-Language-Velocity/gradle
+# Language-Backend
+Language-Backend.iml
+Language-Backend/.gradle
+Language-Backend/build
+Language-Backend/out
+Language-Backend/.idea
+Language-Backend/gradle
+
+
