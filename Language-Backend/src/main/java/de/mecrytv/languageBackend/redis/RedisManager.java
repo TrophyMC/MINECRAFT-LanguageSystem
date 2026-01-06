@@ -1,9 +1,7 @@
 package de.mecrytv.languageBackend.redis;
 
 import com.google.gson.Gson;
-import de.mecrytv.languageVelocity.LanguageVelocity;
-import de.mecrytv.languageVelocity.redis.IRedisMessageListener;
-import de.mecrytv.languageVelocity.redis.RedisPacket;
+import de.mecrytv.languageBackend.LanguageBackend;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
@@ -22,9 +20,9 @@ public class RedisManager {
     private StatefulRedisConnection<String, String> connection;
 
     public RedisManager(){
-        String host = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("redis.host");
-        int port = LanguageVelocity.getInstance().getServiceManager().getConfig().getInt("redis.port");
-        String password = LanguageVelocity.getInstance().getServiceManager().getConfig().getString("redis.password");
+        String host = LanguageBackend.getInstance().getConfig().getString("redis.host");
+        int port = LanguageBackend.getInstance().getConfig().getInt("redis.port");
+        String password = LanguageBackend.getInstance().getConfig().getString("redis.password");
 
         String url = String.format("redis://%s@%s:%d", password, host, port);
         this.client = RedisClient.create(url);
