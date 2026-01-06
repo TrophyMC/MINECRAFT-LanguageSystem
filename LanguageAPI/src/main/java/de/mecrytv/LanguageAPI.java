@@ -100,7 +100,7 @@ public class LanguageAPI {
         Map<String, LanguageConfigManager> categoriesForLang = configs.get(langCode);
 
         if (categoriesForLang == null) {
-            categoriesForLang = configs.get("en_US");
+            categoriesForLang = configs.get("de_DE");
         }
 
         if (categoriesForLang != null) {
