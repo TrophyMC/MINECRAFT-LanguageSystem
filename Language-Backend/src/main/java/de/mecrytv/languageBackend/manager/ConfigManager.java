@@ -14,10 +14,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigManager {
     private final Path filePath;
@@ -57,7 +54,7 @@ public class ConfigManager {
             }
             load();
         } catch (IOException e) {
-            System.err.println("[LangVelo] Fehler beim Initialisieren der Config: " + fileName);
+            System.err.println("[LangBackend] Fehler beim Initialisieren der Config: " + fileName);
             e.printStackTrace();
         }
     }
@@ -91,7 +88,7 @@ public class ConfigManager {
 
     public String getString(String path) {
         Object val = get(path);
-        return (val != null) ? String.valueOf(val) : "";
+        return (val != null) ? String.valueOf(val) : "<red>Missing key: <white>" + path;
     }
 
     public int getInt(String path) {
@@ -115,13 +112,12 @@ public class ConfigManager {
     }
 
     public List<String> getStringList(String path) {
-        List<Object> rawList = getList(path);
-        List<String> stringList = new ArrayList<>();
-
-        for (Object item : rawList) {
-            stringList.add(String.valueOf(item));
+        Object val = get(path);
+        if (val instanceof List) {
+            List<String> list = (List<String>) val;
+            return list;
         }
-        return stringList;
+        return Collections.singletonList("<red>Missing list: " + path);
     }
 
     public List<Integer> getIntList(String path) {
@@ -134,9 +130,7 @@ public class ConfigManager {
             } else {
                 try {
                     intList.add(Integer.parseInt(String.valueOf(item)));
-                } catch (NumberFormatException ignored) {
-                    // Ungültige Einträge werden übersprungen
-                }
+                } catch (NumberFormatException ignored) {}
             }
         }
         return intList;
@@ -163,13 +157,12 @@ public class ConfigManager {
     public void load() {
         if (Files.notExists(filePath)) return;
 
-        // Erweitertes Array mit allen gängigen Kodierungen
         Charset[] charsetsToTry = {
                 StandardCharsets.UTF_8,
-                Charset.forName("IBM850"),     // MobaXterm / DOS Standard
-                Charset.forName("windows-1252"), // Windows Standard (Westeuropa)
-                Charset.forName("windows-1250"), // Windows (Mitteleuropa)
-                Charset.forName("IBM437"),     // Legacy DOS
+                Charset.forName("IBM850"),
+                Charset.forName("windows-1252"),
+                Charset.forName("windows-1250"),
+                Charset.forName("IBM437"),
                 StandardCharsets.ISO_8859_1,
                 StandardCharsets.UTF_16,
                 StandardCharsets.UTF_16BE,
@@ -182,18 +175,14 @@ public class ConfigManager {
 
         for (Charset charset : charsetsToTry) {
             try {
-                // Wir lesen die Datei als Bytes ein
                 byte[] bytes = Files.readAllBytes(filePath);
 
-                // WICHTIG: Wir nutzen einen Decoder, der Fehler IGNORIERT/ERSETZT
-                // Anstatt einer MalformedInputException wird ein '?' eingefügt
                 CharsetDecoder decoder = charset.newDecoder()
                         .onMalformedInput(CodingErrorAction.REPLACE)
                         .onUnmappableCharacter(CodingErrorAction.REPLACE);
 
                 String content = decoder.decode(ByteBuffer.wrap(bytes)).toString();
 
-                // GSON versucht nun den (bereinigten) String zu parsen
                 Map<String, Object> loadedData = gson.fromJson(content,
                         new TypeToken<Map<String, Object>>(){}.getType());
 
@@ -208,10 +197,10 @@ public class ConfigManager {
         }
 
         if (!success) {
-            System.err.println("[LangVelo] KRITISCH: Die Datei " + fileName + " konnte nicht verarbeitet werden!");
-            if (lastError != null) System.err.println("[LangVelo] Fehler: " + lastError.getMessage());
+            System.err.println("[LangBackend] KRITISCH: Die Datei " + fileName + " konnte nicht verarbeitet werden!");
+            if (lastError != null) System.err.println("[LangBackend] Fehler: " + lastError.getMessage());
         } else {
-            System.out.println("[LangVelo] Konfiguration " + fileName + " erfolgreich geladen.");
+            System.out.println("[LangBackend] Konfiguration " + fileName + " erfolgreich geladen.");
         }
     }
 

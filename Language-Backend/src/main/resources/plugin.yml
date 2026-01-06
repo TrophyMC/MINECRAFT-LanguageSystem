@@ -2,3 +2,6 @@ name: Language-Backend
 version: '1.0.0'
 main: de.mecrytv.languageBackend.LanguageBackend
 api-version: '1.21'
+commands:
+  language:
+    description: Change your language preference

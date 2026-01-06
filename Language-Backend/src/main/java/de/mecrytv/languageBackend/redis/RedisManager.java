@@ -20,9 +20,9 @@ public class RedisManager {
     private StatefulRedisConnection<String, String> connection;
 
     public RedisManager(){
-        String host = LanguageBackend.getInstance().getConfig().getString("redis.host");
-        int port = LanguageBackend.getInstance().getConfig().getInt("redis.port");
-        String password = LanguageBackend.getInstance().getConfig().getString("redis.password");
+        String host = LanguageBackend.getInstance().getConfiguration().getString("redis.host");
+        int port = LanguageBackend.getInstance().getConfiguration().getInt("redis.port");
+        String password = LanguageBackend.getInstance().getConfiguration().getString("redis.password");
 
         String url = String.format("redis://%s@%s:%d", password, host, port);
         this.client = RedisClient.create(url);

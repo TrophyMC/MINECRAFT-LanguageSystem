@@ -12,11 +12,11 @@ public class MariaDBManager {
     private HikariDataSource dataSource;
 
     public MariaDBManager() {
-        String host = LanguageBackend.getInstance().getConfig().getString("mariadb.host");
-        int port = LanguageBackend.getInstance().getConfig().getInt("mariadb.port");
-        String database = LanguageBackend.getInstance().getConfig().getString("mariadb.database").trim();
-        String username = LanguageBackend.getInstance().getConfig().getString("mariadb.user");
-        String password = LanguageBackend.getInstance().getConfig().getString("mariadb.password");
+        String host = LanguageBackend.getInstance().getConfiguration().getString("mariadb.host");
+        int port = LanguageBackend.getInstance().getConfiguration().getInt("mariadb.port");
+        String database = LanguageBackend.getInstance().getConfiguration().getString("mariadb.database").trim();
+        String username = LanguageBackend.getInstance().getConfiguration().getString("mariadb.user");
+        String password = LanguageBackend.getInstance().getConfiguration().getString("mariadb.password");
 
         HikariConfig mariaDBConfig = new HikariConfig();
 
